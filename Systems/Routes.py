@@ -16,6 +16,7 @@ def home():
         depart = mycursor.fetchall()
         print(depart)
         mycursor.close()
+    depart.insert(0,{"airport_name":"Anywhere","airport_city":"Anywhere"})
     form.depart.choices = [(location["airport_city"] + ", " + location["airport_name"], location["airport_city"] + ", " + location["airport_name"])for location in depart]
     form.arrival.choices = [(location["airport_city"] + ", " + location["airport_name"], location["airport_city"] + ", " + location["airport_name"])for location in depart]
     return render_template('Home.html', title='Home', form=form)
@@ -32,11 +33,21 @@ def search():
         al = dest.split(",")
         departa = l[1].strip()
         desta = al[1].strip()
+        if(departa != "Anywhere"):
+            departa = "\'"+departa+"\'"
+        else:
+            departa = "departure_airport"
+        if(desta != "Anywhere"):
+            desta = "\'"+desta+"\'"
+        else:
+            desta = "arrival_airport"
+            
         with connection.cursor(pymysql.cursors.DictCursor) as mycursor:
-            mycursor.execute("SELECT * FROM available_flights WHERE departure_airport=\'"+desta+"\'")
+            mycursor.execute("SELECT * FROM available_flights WHERE departure_airport=" + departa)
             res = mycursor.fetchall()
             print(res)
             mycursor.close()
+        
         return render_template('Search.html', title='Home', form=form, res=res)
 
 
